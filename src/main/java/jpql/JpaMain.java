@@ -45,18 +45,17 @@ public class JpaMain {
 
             em.persist(member2);
 
+            // FLUSH 자동 호출
+            int resultCount = em.createQuery("update Member m set m.age = 20")
+                    .executeUpdate();
 
-            em.flush();
+            System.out.println("resultCount = " + resultCount);
+
             em.clear();
-
-            List<Member> resultList = em.createNamedQuery("Member.findByUsername", Member.class)
-                    .setParameter("username", "회원1")
-                    .getResultList();
-
-            for (Member m : resultList) {
-                System.out.println("m = " + m);
-            }
-
+            Member find_member2 = em.find(Member.class, member2.getId());
+            // DB 에는 age 가 20 이지만, 영속성 컨텍스트에는 10이다.
+            // 그래서 벌크 연산 후, 영속성 컨텍스트를 초기화 해야 한다
+            System.out.println("age: " + find_member2.getAge());
 
             tx.commit();
         } catch (Exception e) {
